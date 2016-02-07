@@ -20,7 +20,7 @@ public class Robot extends SampleRobot {
    ADXRS450_Gyro gyro;
    Joystick gamepad;
    RobotDrive myRobot;
-   double Kp = 0.02;
+   double Kp = 0.04;
    double Ki = 0;
    double Kd = 0.08;
    double Kf = 0;
