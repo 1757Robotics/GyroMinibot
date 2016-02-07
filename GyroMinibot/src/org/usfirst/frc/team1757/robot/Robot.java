@@ -67,20 +67,19 @@ public class Robot extends SampleRobot {
     		angle = gyro.getAngle(); //get heading
     		//myRobot.drive(gamepad.getY()*0.4, -angle*Kp);
     		
-    		pidLeft.setSetpoint(gamepad.getY() *3);
-    		pidRight.setSetpoint(gamepad.getY()* -3);    		
+    		
+    		pidLeft.setSetpoint(gamepad.getY() *90);
+    		pidRight.setSetpoint(gamepad.getY()* -90);    		
     		//  this is the inverted motor, so set negative setpoint
     		
-    		//pidLeft.setSetpoint(0);
-    		//pidRight.setSetpoint(0);
+    		/*
     		
-    		//Good starting Kp is 0.03!!!!!!!!
-    			// OK so the correction system works, now we need to somehow add and subtract from driving values
+    		pidLeft.setSetpoint(0);
+    		pidRight.setSetpoint(0);
+    		pidLeft.setDrive(gamepad.getY()*.4);
+    		pidRight.setDrive(gamepad.getY()*.4);
     		
-    		//pidLeft.setPID(Kp, 0, 0);
-    		//pidRight.setPID(Kp, 0, 0);
-    		
-    		
+    		*/
     		
     		if (gamepad.getRawButton(7) == true){
    			  Kp -= .0001;
