@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindowSendable;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.tables.ITable;
 import edu.wpi.first.wpilibj.tables.ITableListener;
 import edu.wpi.first.wpilibj.util.BoundaryException;
@@ -59,7 +60,8 @@ public class PIDController implements PIDInterface, LiveWindowSendable, Controll
   private double m_I; // factor for "integral" control
   private double m_D; // factor for "derivative" control
   private double m_F; // factor for feedforward term
-  private double m_pidAdjust;
+  private double m_drive;
+  private boolean m_invert;
   private double m_maximumOutput = 1.0; // |maximum output|
   private double m_minimumOutput = -1.0; // |minimum output|
   private double m_maximumInput = 0.0; // maximum input - limit setpoint to this
@@ -166,7 +168,7 @@ public class PIDController implements PIDInterface, LiveWindowSendable, Controll
    *        effects calculations of the integral and differential terms. The
    *        default is 50ms.
    */
-  public PIDController(int adjust, double Kp, double Ki, double Kd, double Kf, PIDSource source,
+  public PIDController(double drive, double Kp, double Ki, double Kd, double Kf, PIDSource source,
       PIDOutput output, double period) {
 
     if (source == null) {
@@ -189,7 +191,7 @@ public class PIDController implements PIDInterface, LiveWindowSendable, Controll
     m_pidOutput = output;
     m_period = period;
     
-    m_pidAdjust = adjust;
+    m_drive = drive;
 
     m_controlLoop.schedule(new PIDTask(this), 0L, (long) (m_period * 1000));
 
@@ -214,7 +216,7 @@ public class PIDController implements PIDInterface, LiveWindowSendable, Controll
    */
   public PIDController(double Kp, double Ki, double Kd, PIDSource source, PIDOutput output,
       double period) {
-    this(1, Kp, Ki, Kd, 0.0, source, output, period);
+    this(0, Kp, Ki, Kd, 0.0, source, output, period);
   }
 
   /**
@@ -227,8 +229,8 @@ public class PIDController implements PIDInterface, LiveWindowSendable, Controll
    * @param source The PIDSource object that is used to get values
    * @param output The PIDOutput object that is set to the output percentage
    */
-  public PIDController(int adjust, double Kp, double Ki, double Kd, PIDSource source, PIDOutput output) {
-    this(adjust, Kp, Ki, Kd, 0.0, source, output, kDefaultPeriod);
+  public PIDController(double drive, double Kp, double Ki, double Kd, double Kf, PIDSource source, PIDOutput output) {
+    this(drive, Kp, Ki, Kd, 0.0, source, output, kDefaultPeriod);
   }
 
   /**
@@ -244,7 +246,7 @@ public class PIDController implements PIDInterface, LiveWindowSendable, Controll
    */
   public PIDController(double Kp, double Ki, double Kd, double Kf, PIDSource source,
       PIDOutput output) {
-    this(1, Kp, Ki, Kd, Kf, source, output, kDefaultPeriod);
+    this(0.0, Kp, Ki, Kd, Kf, source, output, kDefaultPeriod);
   }
 
   /**
@@ -287,7 +289,7 @@ public class PIDController implements PIDInterface, LiveWindowSendable, Controll
       double result;
       PIDOutput pidOutput = null;
       synchronized (this) {
-        input = (pidInput.pidGet() * m_pidAdjust);
+        input = (pidInput.pidGet());
       }
       synchronized (this) {
         m_error = m_setpoint - input;
@@ -353,9 +355,23 @@ public class PIDController implements PIDInterface, LiveWindowSendable, Controll
           m_bufTotal -= m_buf.pop();
         }
       }
-
-      pidOutput.pidWrite(result);
+      if (m_invert){
+    	  pidOutput.pidWrite(result - m_drive);
+    	  SmartDashboard.putNumber("result invert", result);
+    	  SmartDashboard.putNumber("result plus drive invert", result-m_drive);
+      }
+      else{
+    	  pidOutput.pidWrite(result + m_drive);
+    	  SmartDashboard.putNumber("result", result);
+    	  SmartDashboard.putNumber("result plus drive ", result+m_drive);
+      }
     }
+  }
+  void setInverted(boolean fuck){
+	  m_invert = fuck;
+  }
+  void setDrive(double speed){
+	  m_drive = speed;
   }
 
   /**
@@ -574,7 +590,7 @@ public class PIDController implements PIDInterface, LiveWindowSendable, Controll
    */
   public synchronized double getError() {
     // return m_error;
-    return getSetpoint() - (m_pidInput.pidGet() * m_pidAdjust);
+    return getSetpoint() - (m_pidInput.pidGet());
   }
 
   /**

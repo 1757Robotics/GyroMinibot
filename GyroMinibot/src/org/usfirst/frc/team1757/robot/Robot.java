@@ -20,9 +20,9 @@ public class Robot extends SampleRobot {
    ADXRS450_Gyro gyro;
    Joystick gamepad;
    RobotDrive myRobot;
-   double Kp = 0;
+   double Kp = 0.02;
    double Ki = 0;
-   double Kd = 0;
+   double Kd = 0.08;
    double Kf = 0;
    double angle = 0;
    PIDController pidLeft;
@@ -37,11 +37,9 @@ public class Robot extends SampleRobot {
 		
 		//myRobot = new RobotDrive(leftMotor, rightMotor);
 		//gyro.setPIDSourceType(PIDSourceType.kRate);
-		pidLeft = new PIDController(1, Kp, Ki, Kd, gyro, leftMotor);
-		//  adjust value of 1, multiplies source by 1
-		pidRight = new PIDController(-1, Kp, Ki, Kd, gyro, rightMotor);
-		// adjust value of -1, multiplies source by -1
-		rightMotor.setInverted(true);
+		pidLeft = new PIDController(0, Kp, Ki, Kd, Kf, gyro, leftMotor);
+		pidRight = new PIDController(0, Kp, Ki, Kd, Kf, gyro, rightMotor);
+		//rightMotor.setInverted(true);
 	}
    
     public void operatorControl() {
@@ -63,25 +61,23 @@ public class Robot extends SampleRobot {
     		SmartDashboard.putNumber("Kf", Kf);
     		SmartDashboard.putNumber("Angle", gyro.getAngle());
     		
-    		//Gyro Code Bruh
     		angle = gyro.getAngle(); //get heading
     		//myRobot.drive(gamepad.getY()*0.4, -angle*Kp);
     		
-    		pidLeft.setSetpoint(gamepad.getY() *45);
-    		pidRight.setSetpoint(gamepad.getY()* -45);    		
+    		//pidLeft.setSetpoint(gamepad.getY() *45);
+    		//pidRight.setSetpoint(gamepad.getY()* -45);    		
     		//  this is the inverted motor, so set negative setpoint
     		
-    		//pidLeft.setPID(.003, 0.0, 0.0, gamepad.getY());
-    		//pidRight.setPID(.003, 0.0, 0.0, gamepad.getY());
+    		//pidLeft.setPID(.020, 0.0, 0.080, gamepad.getY());
+    		//pidRight.setPID(.020, 0.0, 0.080, gamepad.getY());
+    		//  feed forward did not calculate...
     		
-    		//pidLeft.setSetpoint(0);
-    		//pidRight.setSetpoint(0);
+    		pidLeft.setSetpoint(0);
+    		pidRight.setSetpoint(0);
     		
-    		//Good starting Kp is 0.03!!!!!!!!
-    			// OK so the correction system works, now we need to somehow add and subtract from driving values
-    		
-    		//pidLeft.setPID(Kp, 0, 0);
-    		//pidRight.setPID(Kp, 0, 0);
+    		pidLeft.setDrive(gamepad.getY());
+    		pidRight.setInverted(true);
+    		pidRight.setDrive(gamepad.getY());
     		
     		
     		
