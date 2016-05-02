@@ -9,9 +9,7 @@ import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Joystick;
 
 import edu.wpi.first.wpilibj.SampleRobot;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 import edu.wpi.first.wpilibj.CameraServer;
 import org.usfirst.frc.team1757.robot.PIDController;
 
@@ -56,7 +54,6 @@ public class Robot extends SampleRobot {
    
     public void operatorControl() {
     	while (isOperatorControl() && isEnabled()){
-    		 
     		// Smartdashboard
     		SmartDashboard.putData("Gyro", gyro);
     		SmartDashboard.putData("Accelerometer", accel);
@@ -75,7 +72,7 @@ public class Robot extends SampleRobot {
     		pidRight.setInverted(true);
     		pidRight.setDrive(gamepad.getY());
     		
-    		//method #1 - use if robot goes rogue
+    		//turn method #1 - use if robot goes rogue
     		/*
     		if (gamepad.getRawAxis(3) > .1) {
     			pidRight.setSetpoint(initialTurn);
@@ -91,7 +88,7 @@ public class Robot extends SampleRobot {
     		}
     		*/
     		
-    		//method #2
+    		//turn method #2
     		if (gamepad.getRawAxis(3) > .1) {
     			setpoint += gamepad.getRawAxis(3)*turnConstant;
     			pidLeft.setSetpoint(setpoint);
